@@ -19,8 +19,7 @@ const COMMON_AGENT_CONFIGS = {
         fallbackModel: AIModels.GEMINI_2_5_FLASH,
     },
     realtimeCodeFixer: {
-        // CHANGED: was GROK_4_1_FAST_NON_REASONING. Constraints only allow DISABLED here,
-        // and this avoids any Grok call going to unified billing.
+        // Constraints only allow DISABLED here; avoids any Grok call going to unified billing.
         name: AIModels.DISABLED,
         reasoning_effort: 'low' as const,
         max_tokens: 32000,
@@ -119,25 +118,24 @@ const PLATFORM_AGENT_CONFIG: AgentConfig = {
 };
 
 //======================================================================================
-// Default DeepSeek config (used when PLATFORM_MODEL_PROVIDERS is not set)
+// Default DeepSeek-only config (used when PLATFORM_MODEL_PROVIDERS is not set)
 //======================================================================================
 /*
  * Requires DEEPSEEK_CHAT and DEEPSEEK_REASONER in MODELS_MASTER (config.types.ts)
- * and a DeepSeek key stored in the AI Gateway (Provider Keys).
+ * and a DeepSeek key stored in the AI Gateway (Provider Keys, alias "default").
  *
- * Fallbacks point to Gemini so a DeepSeek outage or empty balance falls back to
- * your Gemini key. If you have no Gemini key in the gateway, change every
- * fallbackModel below to AIModels.DEEPSEEK_CHAT.
+ * Every primary and fallback is a DeepSeek model, because Gemini is blocked for
+ * this account ("User location is not supported"). Each DeepSeek model falls
+ * back to the other one, so everything stays on the DeepSeek key.
  *
- * max_tokens are lowered for DeepSeek's output limits
- * (deepseek-chat ~8K, deepseek-reasoner ~64K; verify in DeepSeek's docs).
+ * max_tokens are kept within DeepSeek's output limits (verify in DeepSeek's docs).
  */
 const DEEPSEEK_IMPLEMENTATION_CONFIG = {
     name: AIModels.DEEPSEEK_CHAT,
     reasoning_effort: 'low' as const,
     max_tokens: 8000,
     temperature: 0.7,
-    fallbackModel: AIModels.GEMINI_2_5_FLASH,
+    fallbackModel: AIModels.DEEPSEEK_REASONER,
 };
 
 const DEFAULT_AGENT_CONFIG: AgentConfig = {
@@ -146,14 +144,14 @@ const DEFAULT_AGENT_CONFIG: AgentConfig = {
         name: AIModels.DEEPSEEK_CHAT,
         max_tokens: 2000,
         temperature: 0.6,
-        fallbackModel: AIModels.GEMINI_2_5_FLASH_LITE,
+        fallbackModel: AIModels.DEEPSEEK_REASONER,
     },
     blueprint: {
         name: AIModels.DEEPSEEK_REASONER,
         reasoning_effort: 'high',
         max_tokens: 32000,
         temperature: 1,
-        fallbackModel: AIModels.GEMINI_2_5_FLASH,
+        fallbackModel: AIModels.DEEPSEEK_CHAT,
     },
     projectSetup: { ...DEEPSEEK_IMPLEMENTATION_CONFIG },
     phaseGeneration: { ...DEEPSEEK_IMPLEMENTATION_CONFIG },
@@ -164,14 +162,14 @@ const DEFAULT_AGENT_CONFIG: AgentConfig = {
         reasoning_effort: 'low',
         max_tokens: 4000,
         temperature: 0,
-        fallbackModel: AIModels.GEMINI_2_5_FLASH,
+        fallbackModel: AIModels.DEEPSEEK_REASONER,
     },
     deepDebugger: {
         name: AIModels.DEEPSEEK_REASONER,
         reasoning_effort: 'high',
         max_tokens: 16000,
         temperature: 1,
-        fallbackModel: AIModels.GEMINI_2_5_FLASH,
+        fallbackModel: AIModels.DEEPSEEK_CHAT,
     },
     fileRegeneration: { ...DEEPSEEK_IMPLEMENTATION_CONFIG },
     agenticProjectBuilder: {
