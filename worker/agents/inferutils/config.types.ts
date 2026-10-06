@@ -337,7 +337,7 @@ const MODELS_MASTER = {
             creditCost: 8, // $0.22
             contextSize: 262144, // 256K Context
         },
-    }
+    },
     DEEPSEEK_CHAT: {
         id: 'deepseek/deepseek-chat',
         config: {
