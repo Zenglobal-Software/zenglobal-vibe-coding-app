@@ -19,7 +19,9 @@ const COMMON_AGENT_CONFIGS = {
         fallbackModel: AIModels.GEMINI_2_5_FLASH,
     },
     realtimeCodeFixer: {
-        name: AIModels.GROK_4_1_FAST_NON_REASONING,
+        // CHANGED: was GROK_4_1_FAST_NON_REASONING. Constraints only allow DISABLED here,
+        // and this avoids any Grok call going to unified billing.
+        name: AIModels.DISABLED,
         reasoning_effort: 'low' as const,
         max_tokens: 32000,
         temperature: 0.2,
@@ -117,67 +119,67 @@ const PLATFORM_AGENT_CONFIG: AgentConfig = {
 };
 
 //======================================================================================
-// Default Gemini-only config (most likely used in your deployment)
+// Default DeepSeek config (used when PLATFORM_MODEL_PROVIDERS is not set)
 //======================================================================================
-/* These are the default out-of-the box gemini-only models used when PLATFORM_MODEL_PROVIDERS is not set */
+/*
+ * Requires DEEPSEEK_CHAT and DEEPSEEK_REASONER in MODELS_MASTER (config.types.ts)
+ * and a DeepSeek key stored in the AI Gateway (Provider Keys).
+ *
+ * Fallbacks point to Gemini so a DeepSeek outage or empty balance falls back to
+ * your Gemini key. If you have no Gemini key in the gateway, change every
+ * fallbackModel below to AIModels.DEEPSEEK_CHAT.
+ *
+ * max_tokens are lowered for DeepSeek's output limits
+ * (deepseek-chat ~8K, deepseek-reasoner ~64K; verify in DeepSeek's docs).
+ */
+const DEEPSEEK_IMPLEMENTATION_CONFIG = {
+    name: AIModels.DEEPSEEK_CHAT,
+    reasoning_effort: 'low' as const,
+    max_tokens: 8000,
+    temperature: 0.7,
+    fallbackModel: AIModels.GEMINI_2_5_FLASH,
+};
+
 const DEFAULT_AGENT_CONFIG: AgentConfig = {
     ...COMMON_AGENT_CONFIGS,
     templateSelection: {
-        name: AIModels.GEMINI_2_5_FLASH_LITE,
+        name: AIModels.DEEPSEEK_CHAT,
         max_tokens: 2000,
-        fallbackModel: AIModels.GEMINI_2_5_FLASH,
         temperature: 0.6,
+        fallbackModel: AIModels.GEMINI_2_5_FLASH_LITE,
     },
     blueprint: {
-        name: AIModels.GEMINI_3_FLASH_PREVIEW,
+        name: AIModels.DEEPSEEK_REASONER,
         reasoning_effort: 'high',
-        max_tokens: 64000,
-        fallbackModel: AIModels.GEMINI_2_5_PRO,
-        temperature: 1,
-    },
-    projectSetup: {
-        name: AIModels.GEMINI_3_FLASH_PREVIEW,
-        ...SHARED_IMPLEMENTATION_CONFIG,
-    },
-    phaseGeneration: {
-        name: AIModels.GEMINI_3_FLASH_PREVIEW,
-        ...SHARED_IMPLEMENTATION_CONFIG,
-    },
-    firstPhaseImplementation: {
-        name: AIModels.GEMINI_3_FLASH_PREVIEW,
-        ...SHARED_IMPLEMENTATION_CONFIG,
-    },
-    phaseImplementation: {
-        name: AIModels.GEMINI_3_FLASH_PREVIEW,
-        ...SHARED_IMPLEMENTATION_CONFIG,
-    },
-    conversationalResponse: {
-        name: AIModels.GEMINI_2_5_FLASH,
-        reasoning_effort: 'low',
-        max_tokens: 4000,
-        temperature: 0,
-        fallbackModel: AIModels.GEMINI_2_5_PRO,
-    },
-    deepDebugger: {
-        name: AIModels.GEMINI_3_FLASH_PREVIEW,
-        reasoning_effort: 'high',
-        max_tokens: 8000,
-        temperature: 1,
-        fallbackModel: AIModels.GEMINI_2_5_FLASH,
-    },
-    fileRegeneration: {
-        name: AIModels.GEMINI_3_FLASH_PREVIEW,
-        reasoning_effort: 'low',
         max_tokens: 32000,
         temperature: 1,
         fallbackModel: AIModels.GEMINI_2_5_FLASH,
     },
-    agenticProjectBuilder: {
-        name: AIModels.GEMINI_3_FLASH_PREVIEW,
+    projectSetup: { ...DEEPSEEK_IMPLEMENTATION_CONFIG },
+    phaseGeneration: { ...DEEPSEEK_IMPLEMENTATION_CONFIG },
+    firstPhaseImplementation: { ...DEEPSEEK_IMPLEMENTATION_CONFIG },
+    phaseImplementation: { ...DEEPSEEK_IMPLEMENTATION_CONFIG },
+    conversationalResponse: {
+        name: AIModels.DEEPSEEK_CHAT,
+        reasoning_effort: 'low',
+        max_tokens: 4000,
+        temperature: 0,
+        fallbackModel: AIModels.GEMINI_2_5_FLASH,
+    },
+    deepDebugger: {
+        name: AIModels.DEEPSEEK_REASONER,
         reasoning_effort: 'high',
-        max_tokens: 8000,
+        max_tokens: 16000,
         temperature: 1,
         fallbackModel: AIModels.GEMINI_2_5_FLASH,
+    },
+    fileRegeneration: { ...DEEPSEEK_IMPLEMENTATION_CONFIG },
+    agenticProjectBuilder: {
+        name: AIModels.DEEPSEEK_REASONER,
+        reasoning_effort: 'high',
+        max_tokens: 16000,
+        temperature: 1,
+        fallbackModel: AIModels.DEEPSEEK_CHAT,
     },
 };
 

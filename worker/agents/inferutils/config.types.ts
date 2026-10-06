@@ -338,6 +338,28 @@ const MODELS_MASTER = {
             contextSize: 262144, // 256K Context
         },
     }
+    DEEPSEEK_CHAT: {
+        id: 'deepseek/deepseek-chat',
+        config: {
+            name: 'DeepSeek Chat',
+            size: ModelSize.LITE,      // LITE = allowed in every slot, incl. templateSelection
+            provider: 'deepseek',
+            creditCost: 1.1,           // ~ $0.28/1M input; check current pricing
+            contextSize: 131072,       // 128K Context
+            nonReasoning: true,
+        }
+    },
+    DEEPSEEK_REASONER: {
+        id: 'deepseek/deepseek-reasoner',
+        config: {
+            name: 'DeepSeek Reasoner',
+            size: ModelSize.REGULAR,   // allowed in conversationalResponse/projectSetup too
+            provider: 'deepseek',
+            creditCost: 1.1,
+            contextSize: 131072,
+            nonReasoning: true,
+        }
+    },
 } as const;
 
 /**
